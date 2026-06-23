@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FM Order Readiness Mailer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#f2f4f7;--surface:#fff;--surface-alt:#f8f9fb;--bdr:#e4e8ee;--bdr-strong:#c9d2dc;
+  --text:#1c2b3a;--text-2:#3f536b;--text-3:#6b7e93;--text-4:#9baab8;
+  --blue:#2563a8;--blue-light:#eef3fb;--blue-border:#c2d6f0;--blue-dark:#1a4f8a;
+  --green:#1a6e41;--green-light:#edf8f2;--green-border:#a5d9bc;
+  --amber:#7c4f0f;--amber-light:#fef9ee;--amber-border:#f5d89a;
+  --red:#8b2020;--red-light:#fdf2f2;--red-border:#f3b8b8;
+  --shadow-1:0 1px 3px rgba(28,43,58,.06),0 1px 2px rgba(28,43,58,.04);
+  --shadow-2:0 3px 10px rgba(28,43,58,.07),0 1px 3px rgba(28,43,58,.05);
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:18px;
+  --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);font-size:14px;line-height:1.55;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased;min-height:100vh}
+.page{max-width:1160px;margin:0 auto;padding:28px 20px 80px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--bdr);gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:13px}
+.brand-mark{width:38px;height:38px;background:var(--blue);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--shadow-1)}
+.brand-mark svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.brand-name{font-size:14.5px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.brand-sub{font-size:11.5px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.env-badge{font-size:11px;font-weight:600;padding:3px 11px;border-radius:20px;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);letter-spacing:.01em}
+.status-chip{font-size:11px;font-weight:500;padding:4px 12px;border-radius:20px;background:var(--surface);color:var(--text-3);border:1px solid var(--bdr-strong);box-shadow:var(--shadow-1)}
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:22px}
+.met{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r-md);padding:14px 16px;box-shadow:var(--shadow-1);transition:box-shadow .2s var(--ease)}
+.met:hover{box-shadow:var(--shadow-2)}
+.met-val{font-size:22px;font-weight:600;font-family:var(--mono);letter-spacing:-.03em;line-height:1;margin-bottom:5px}
+.met-lbl{font-size:10.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;font-weight:500}
+.c-blue{color:var(--blue)}.c-green{color:var(--green)}.c-amber{color:#b06010}.c-red{color:#c0392b}.c-purple{color:#5c3da8}
+.tabbar{display:flex;gap:2px;background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r-lg);padding:4px;margin-bottom:22px;box-shadow:var(--shadow-1);overflow-x:auto}
+.tabbar::-webkit-scrollbar{display:none}
+.tab-btn{flex:1;min-width:80px;padding:8px 10px;border-radius:var(--r-sm);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;color:var(--text-3);background:transparent;border:none;white-space:nowrap;text-align:center;transition:all .15s var(--ease);user-select:none}
+.tab-btn:hover{color:var(--text-2);background:var(--bg)}
+.tab-btn.active{background:var(--blue);color:#fff;box-shadow:0 1px 5px rgba(37,99,168,.3)}
+.pane{display:none;animation:fadeUp .18s var(--ease)}.pane.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r-xl);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow-1)}
+.card-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 20px;background:var(--surface-alt);border-bottom:1px solid var(--bdr)}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.card-body{padding:20px 22px}.card-body-sm{padding:14px 18px}
+.notice{padding:10px 14px;border-radius:var(--r-sm);font-size:12px;line-height:1.65;border-left:3px solid;display:none;margin-top:12px}
+.notice.show{display:block}
+.n-info{background:var(--blue-light);border-color:var(--blue);color:#1a3d6e}
+.n-ok{background:var(--green-light);border-color:var(--green);color:#134f2e}
+.n-warn{background:var(--amber-light);border-color:#c08010;color:#5e3b08}
+.n-error{background:var(--red-light);border-color:#c03030;color:var(--red)}
+.field-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3)}
+.field input,.field select,.field textarea{font-family:var(--font);font-size:13px;color:var(--text);background:var(--surface);border:1px solid var(--bdr-strong);border-radius:var(--r-sm);padding:8px 12px;box-shadow:var(--shadow-1);transition:border-color .15s var(--ease),box-shadow .15s var(--ease);outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,168,.12)}
+.field select{cursor:pointer;min-width:130px}
+.field-hint{font-size:11px;color:var(--text-4);margin-top:2px}
+.field-hint a{color:var(--blue);text-decoration:none}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.span-2{grid-column:1/-1}
+.upload-zone{border:1.5px dashed var(--bdr-strong);border-radius:var(--r-lg);padding:32px 24px;text-align:center;cursor:pointer;position:relative;background:var(--surface);transition:all .18s var(--ease)}
+.upload-zone:hover,.upload-zone.dragging{border-color:var(--blue);background:var(--blue-light)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:3}
+.upload-icon{width:46px;height:46px;background:var(--surface-alt);border:1px solid var(--bdr);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px}
+.upload-main{font-size:14px;font-weight:500;color:var(--text-2);margin-bottom:5px}
+.upload-hint{font-size:11.5px;color:var(--text-3);line-height:1.7}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-sm);font-family:var(--font);font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid var(--bdr-strong);background:var(--surface);color:var(--text-2);box-shadow:var(--shadow-1);transition:all .15s var(--ease);white-space:nowrap;user-select:none}
+.btn:hover{background:var(--surface-alt);color:var(--text)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.btn:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 1px 5px rgba(37,99,168,.28)}
+.btn-primary:hover:not(:disabled){background:var(--blue-dark);border-color:var(--blue-dark);color:#fff}
+.btn-sm{padding:6px 13px;font-size:12px}.btn-xs{padding:4px 10px;font-size:11px}
+.btn-danger{border-color:var(--red-border);color:var(--red)}
+.btn-danger:hover{background:var(--red-light)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tbl-outer{border:1px solid var(--bdr);border-radius:var(--r-md);overflow:hidden}
+.tbl-scroll{overflow-x:auto;overflow-y:auto;max-height:380px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.tbl-scroll::-webkit-scrollbar{width:6px;height:6px}
+.tbl-scroll::-webkit-scrollbar-track{background:var(--surface-alt)}
+.tbl-scroll::-webkit-scrollbar-thumb{background:var(--bdr-strong);border-radius:4px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+table.auto-cols{table-layout:auto;min-width:640px}
+thead{position:sticky;top:0;z-index:4}
+th{text-align:left;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);padding:9px 14px;background:var(--surface-alt);border-bottom:1px solid var(--bdr);white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid var(--bdr);color:var(--text-2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .12s var(--ease)}
+tbody tr:hover td{background:#f7f9fb}
+.td-mono{font-family:var(--mono);font-size:11.5px}
+.td-clip{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;letter-spacing:.01em}
+.b-blue{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border)}
+.b-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-border)}
+.b-amber{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border)}
+.b-red{background:var(--red-light);color:var(--red);border:1px solid var(--red-border)}
+.b-gray{background:#f0f3f7;color:#56687a;border:1px solid #d4dde8}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block}
+.filter-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.filter-bar select,.filter-bar input[type=text]{font-family:var(--font);font-size:12px;padding:7px 11px;border:1px solid var(--bdr-strong);border-radius:var(--r-sm);background:var(--surface);color:var(--text);box-shadow:var(--shadow-1);outline:none}
+.filter-bar select:focus,.filter-bar input[type=text]:focus{border-color:var(--blue)}
+.filter-search{flex:1;min-width:140px}
+/* ── preview layout ── */
+.preview-layout{display:grid;grid-template-columns:230px 1fr;gap:16px;align-items:start}
+.cust-sidebar-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:10px}
+.cust-sidebar{display:flex;flex-direction:column;gap:5px;max-height:640px;overflow-y:auto;padding-right:2px}
+.cust-sidebar::-webkit-scrollbar{width:4px}
+.cust-sidebar::-webkit-scrollbar-thumb{background:var(--bdr-strong);border-radius:4px}
+.cust-item{border:1px solid var(--bdr);border-radius:var(--r-md);padding:10px 13px;cursor:pointer;background:var(--surface);transition:all .14s var(--ease)}
+.cust-item:hover{background:var(--surface-alt);border-color:var(--bdr-strong)}
+.cust-item.selected{border-color:var(--blue);background:var(--blue-light)}
+.cust-item.selected .ci-name{color:var(--blue)}
+.ci-name{font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px}
+.ci-meta{font-size:11px;color:var(--text-3)}
+.sdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle;flex-shrink:0}
+.preview-panel-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.email-shell{border:1px solid var(--bdr);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-2)}
+.email-fields{background:var(--surface-alt);border-bottom:1px solid var(--bdr)}
+.ef-row{display:flex;align-items:flex-start;border-bottom:1px solid var(--bdr);min-height:34px}
+.ef-row:last-child{border-bottom:none}
+.ef-label{min-width:68px;flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);padding:10px 14px;background:var(--surface-alt);border-right:1px solid var(--bdr);line-height:1.4}
+.ef-value{flex:1;padding:8px 14px;font-size:12px;color:var(--text-2);line-height:1.6;word-break:break-word}
+.ef-value code{font-family:var(--mono);font-size:11px;background:#edf1f7;color:var(--text);padding:1px 6px;border-radius:4px}
+.ef-warn{color:#b46010;font-size:11.5px}
+.email-subject{background:#fdfdfe;border-bottom:1px solid var(--bdr);padding:9px 14px;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text)}
+.email-subject-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);flex-shrink:0;margin-right:2px}
+.email-body-wrap{display:block;width:100%;overflow-x:auto;overflow-y:auto;background:#fff;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+.email-body-wrap::-webkit-scrollbar{width:7px;height:7px}
+.email-body-wrap::-webkit-scrollbar-track{background:#f1f5f9}
+.email-body-wrap::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:4px}
+.email-body-wrap::-webkit-scrollbar-thumb:hover{background:#64748b}
+.email-body-wrap iframe{display:block;width:max-content;min-width:100%;min-height:480px;border:none;vertical-align:top}
+.skeleton{background:linear-gradient(90deg,var(--surface-alt) 25%,#eaecf0 50%,var(--surface-alt) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sk-line{height:12px;margin-bottom:9px;border-radius:4px}
+.empty-box{border:1.5px dashed var(--bdr-strong);border-radius:var(--r-lg);padding:2.8rem 2rem;text-align:center;color:var(--text-3);font-size:13px;background:var(--surface-alt)}
+.empty-box-icon{font-size:30px;display:block;margin-bottom:10px;opacity:.5}
+.send-options{display:flex;flex-wrap:wrap;gap:20px;align-items:center;padding:12px 16px;background:var(--surface-alt);border:1px solid var(--bdr);border-radius:var(--r-sm);margin-bottom:14px}
+.send-options label{font-size:13px;display:flex;align-items:center;gap:7px;cursor:pointer;color:var(--text-2)}
+.send-options input[type=checkbox]{width:14px;height:14px;accent-color:var(--blue)}
+.send-tally{font-size:11px;color:var(--text-3);margin-left:auto;font-weight:500}
+.progress-wrap{height:3px;background:var(--bdr);border-radius:2px;overflow:hidden;margin:12px 0;display:none}
+.progress-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .3s var(--ease);width:0}
+.log-terminal{background:#0d1520;border-radius:var(--r-md);padding:14px 18px;font-family:var(--mono);font-size:11px;line-height:2;color:#8a9db8;min-height:100px;max-height:300px;overflow-y:auto;margin-top:14px;white-space:pre-wrap;word-break:break-all;scroll-behavior:smooth}
+.log-terminal::-webkit-scrollbar{width:4px}
+.log-terminal::-webkit-scrollbar-thumb{background:#2a3d54;border-radius:4px}
+.t-ok{color:#4fce88}.t-err{color:#f07272}.t-info{color:#7ab8f0}.t-warn{color:#f0c060}
+.log-sent td:first-child::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#3cc87a;margin-right:7px;vertical-align:middle}
+.log-fail td:first-child::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#e85858;margin-right:7px;vertical-align:middle}
+.map-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.map-table th{text-align:left;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);padding:8px 13px;background:var(--surface-alt);border-bottom:1px solid var(--bdr)}
+.map-table td{padding:7px 13px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.map-table tr:last-child td{border-bottom:none}
+.map-table tbody tr:hover td{background:#f7f9fc}
+.map-input{width:100%;padding:6px 10px;border:1px solid var(--bdr-strong);border-radius:var(--r-sm);font-family:var(--font);font-size:12px;color:var(--text);background:var(--surface);outline:none;transition:border-color .14s}
+.map-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,168,.1)}
+.saved-mark{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-left:6px;vertical-align:middle}
+.subtab-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:18px}
+.subtab{padding:6px 15px;border-radius:var(--r-sm);font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--bdr-strong);background:var(--surface);color:var(--text-3);transition:all .14s var(--ease);user-select:none}
+.subtab:hover{color:var(--text-2);background:var(--surface-alt)}
+.subtab.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 1px 4px rgba(37,99,168,.25)}
+.subsec{display:none}.subsec.active{display:block}
+.month-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:var(--blue-light);border:1px solid var(--blue-border);font-size:11.5px;font-weight:600;color:var(--blue)}
+code{font-family:var(--mono);font-size:11px;background:#edf1f7;color:var(--text);padding:1px 5px;border-radius:4px}
+.text-muted{color:var(--text-3)}.text-sm{font-size:11.5px}.ml-auto{margin-left:auto}
+/* Render banner */
+.render-banner{display:none;padding:10px 16px;background:#fef3c7;border:1px solid #f59e0b;border-radius:var(--r-md);margin-bottom:16px;font-size:12px;color:#78350f;align-items:center;gap:10px;flex-wrap:wrap}
+.render-banner.show{display:flex}
+.render-banner strong{color:#92400e}
+/* ── editable email row ── */
+.edit-email-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1}
+.edit-email-code{font-family:var(--mono);font-size:11px;background:#edf1f7;color:var(--text);padding:2px 7px;border-radius:4px}
+.edit-btn{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;font-size:11px;font-weight:500;border:1px solid var(--bdr-strong);border-radius:var(--r-sm);background:var(--surface);color:var(--text-3);cursor:pointer;transition:all .14s var(--ease);white-space:nowrap}
+.edit-btn:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+.edit-email-input{font-family:var(--mono);font-size:12px;padding:5px 10px;border:1px solid var(--blue);border-radius:var(--r-sm);background:var(--surface);color:var(--text);outline:none;flex:1;min-width:200px;box-shadow:0 0 0 2px rgba(37,99,168,.1)}
+.save-email-btn{padding:5px 12px;font-size:11.5px;font-weight:500;border:1px solid var(--green);border-radius:var(--r-sm);background:var(--green-light);color:var(--green);cursor:pointer;white-space:nowrap}
+.save-email-btn:hover{background:var(--green);color:#fff}
+.cancel-email-btn{padding:5px 10px;font-size:11.5px;border:1px solid var(--bdr-strong);border-radius:var(--r-sm);background:var(--surface);color:var(--text-3);cursor:pointer}
+.cancel-email-btn:hover{background:var(--surface-alt)}
+/* ── preview filter bar ── */
+/* ── Excel-style multi-select filter ── */
+.preview-filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:var(--surface-alt);border:1px solid var(--bdr);border-radius:var(--r-md)}
+.preview-filter label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3)}
+/* Trigger button — looks like a select */
+.ms-trigger{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;font-family:var(--font);font-size:12px;border:1px solid var(--bdr-strong);border-radius:var(--r-sm);background:var(--surface);color:var(--text);cursor:pointer;box-shadow:var(--shadow-1);min-width:160px;max-width:220px;user-select:none;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-trigger:hover{border-color:var(--blue)}
+.ms-trigger.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,168,.12)}
+.ms-trigger .ms-caret{margin-left:auto;flex-shrink:0;color:var(--text-3);font-size:10px}
+/* Dropdown panel */
+.ms-panel{position:absolute;z-index:999;background:var(--surface);border:1px solid var(--bdr-strong);border-radius:var(--r-md);box-shadow:var(--shadow-3);min-width:240px;max-width:320px;display:none;flex-direction:column;overflow:hidden}
+.ms-panel.open{display:flex}
+/* Search inside panel */
+.ms-search{padding:8px 10px;border-bottom:1px solid var(--bdr)}
+.ms-search input{width:100%;font-family:var(--font);font-size:12px;padding:5px 9px;border:1px solid var(--bdr-strong);border-radius:var(--r-sm);outline:none;background:var(--surface);color:var(--text)}
+.ms-search input:focus{border-color:var(--blue)}
+/* Action row */
+.ms-actions{display:flex;gap:0;border-bottom:1px solid var(--bdr)}
+.ms-act-btn{flex:1;padding:6px 4px;font-family:var(--font);font-size:11px;font-weight:500;border:none;background:var(--surface-alt);color:var(--text-3);cursor:pointer;transition:background .12s}
+.ms-act-btn:hover{background:var(--blue-light);color:var(--blue)}
+.ms-act-btn:not(:last-child){border-right:1px solid var(--bdr)}
+/* List */
+.ms-list{overflow-y:auto;max-height:240px;padding:4px 0}
+.ms-list::-webkit-scrollbar{width:4px}
+.ms-list::-webkit-scrollbar-thumb{background:var(--bdr-strong);border-radius:4px}
+.ms-item{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:12px;color:var(--text-2);transition:background .1s}
+.ms-item:hover{background:var(--blue-light)}
+.ms-item input[type=checkbox]{width:13px;height:13px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+.ms-item label{cursor:pointer;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms-item.hidden{display:none}
+/* Footer */
+.ms-footer{padding:8px 12px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface-alt)}
+.ms-count{font-size:11px;color:var(--text-3)}
+.ms-apply{padding:5px 14px;font-size:12px;font-weight:500;border:none;border-radius:var(--r-sm);background:var(--blue);color:#fff;cursor:pointer;transition:background .14s}
+.ms-apply:hover{background:var(--blue-dark)}
+/* Wrapper for positioning */
+.ms-wrap{position:relative;display:inline-block}
+@media(max-width:900px){.preview-layout{grid-template-columns:1fr}.cust-sidebar{max-height:200px}.metrics{grid-template-columns:repeat(3,1fr)}.metrics>.met:nth-child(4),.metrics>.met:nth-child(5){display:none}}
+@media(max-width:640px){.page{padding:16px 14px 60px}.metrics{grid-template-columns:repeat(2,1fr);gap:8px}.metrics>.met:nth-child(3),.metrics>.met:nth-child(4),.metrics>.met:nth-child(5){display:none}.tab-btn{font-size:11px;padding:7px 6px}.topbar{flex-direction:column;align-items:flex-start}.grid-2{grid-template-columns:1fr}.brand-sub{display:none}.card-body{padding:15px 16px}.ef-label{min-width:54px;font-size:9.5px;padding:9px 10px}.ef-value{font-size:11.5px;padding:8px 10px}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- Render deployment banner — shown automatically when file writes fail -->
+<div class="render-banner" id="render-banner">
+  ⚠ <strong>Render deployment detected.</strong>
+  Mappings are saved in memory only — they will be lost on restart.
+  To persist them: <button class="btn btn-xs btn-sm" style="margin:0 4px" onclick="copyMappingsForRender()">📋 Copy JSON</button>
+  then paste it into your Render dashboard → Environment → <code>FM_MAPPINGS</code>.
+  <button class="btn btn-xs" style="margin-left:auto" onclick="document.getElementById('render-banner').classList.remove('show')">✕</button>
+</div>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">Order Readiness Mailer</div>
+      <div class="brand-sub">Forbes Marshall &mdash; Automated notifications</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="env-badge">HYD &middot; GAUGES</span>
+    <span class="status-chip" id="status-chip">No file loaded</span>
+  </div>
+</header>
+
+<!-- METRICS -->
+<div class="metrics">
+  <div class="met"><div class="met-val c-purple" id="m-month">—</div><div class="met-lbl">Invoice month</div></div>
+  <div class="met"><div class="met-val c-blue"   id="m-total">—</div><div class="met-lbl">Total rows</div></div>
+  <div class="met"><div class="met-val c-green"  id="m-filtered">—</div><div class="met-lbl">Filtered orders</div></div>
+  <div class="met"><div class="met-val c-amber"  id="m-sent">0</div><div class="met-lbl">Emails sent</div></div>
+  <div class="met"><div class="met-val c-red"    id="m-fail">0</div><div class="met-lbl">Failed</div></div>
+</div>
+
+<!-- TABS — Preview now before Mapping -->
+<nav class="tabbar" role="tablist">
+  <button class="tab-btn active" onclick="sw('upload')"  role="tab">↑ Upload</button>
+  <button class="tab-btn"        onclick="sw('orders')"  role="tab">⊞ Orders</button>
+  <button class="tab-btn"        onclick="sw('mapping')" role="tab">📋 Mapping</button>
+  <button class="tab-btn"        onclick="sw('preview')" role="tab">◻ Preview</button>
+  <button class="tab-btn"        onclick="sw('send')"    role="tab">➤ Send</button>
+  <button class="tab-btn"        onclick="sw('logs')"    role="tab">⏳ Logs</button>
+</nav>
+
+<!-- ═══ UPLOAD ═══ -->
+<section class="pane active" id="pane-upload">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Step 1 — Select invoice month &amp; year</span>
+      <span id="month-pill"></span>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Invoice month</label>
+          <select id="sel-month" onchange="onMonthChange()">
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5" selected>May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Invoice year</label>
+          <select id="sel-year" onchange="onMonthChange()">
+            <option value="2024">2024</option><option value="2025">2025</option>
+            <option value="2026" selected>2026</option><option value="2027">2027</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" style="align-self:flex-end" onclick="applyMonth()">✓ Apply filter</button>
+      </div>
+      <div class="notice n-info show" id="month-notice">
+        Select month/year above and click <strong>on Apply filter</strong> to reload.
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">Step 2 — Upload invoice datasheet</span></div>
+    <div class="card-body">
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" accept=".xlsx,.xls,.csv" onchange="handleFile(this.files[0])">
+        <div class="upload-icon">📂</div>
+        <div class="upload-main" id="upload-label">Click to upload or drag &amp; drop</div>
+        <div class="upload-hint">Accepts <strong>.xlsx / .xls / .csv</strong> </div>
+      </div>
+      <div class="notice" id="upload-notice"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ORDERS ═══ -->
+<section class="pane" id="pane-orders">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Filtered orders</span><span id="order-count" class="text-muted text-sm"></span></div>
+    <div class="card-body-sm">
+      <div class="filter-bar">
+        <select id="f-week" onchange="renderOrdersTable()">
+          <option value="">All weeks</option>
+          <option value="WEEK1">Week 1</option><option value="WEEK2">Week 2</option>
+          <option value="WEEK3">Week 3</option><option value="WEEK4">Week 4</option>
+        </select>
+        <select id="f-branch" onchange="renderOrdersTable()"><option value="">All branches</option></select>
+        <input type="text" id="f-search" class="filter-search" placeholder="Search customer or order no…" oninput="renderOrdersTable()">
+        <button class="btn btn-sm ml-auto" onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+      <div class="tbl-outer"><div class="tbl-scroll">
+        <table class="auto-cols">
+          <thead><tr>
+            <th style="min-width:110px">Order No.</th>
+            <th style="min-width:160px">Customer</th>
+            <th style="min-width:110px">PO No.</th>
+            <th style="min-width:90px">Value (₹)</th>
+            <th style="min-width:78px">Week</th>
+            <th style="min-width:110px">Ready Date</th>
+            <th style="min-width:80px">Status</th>
+            <th style="min-width:130px">Sales Rep</th>
+            <th style="min-width:90px">Branch</th>
+          </tr></thead>
+          <tbody id="orders-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-3)">Upload a file to see orders</td></tr>
+          </tbody>
+        </table>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MAPPING (moved after Preview) ═══ -->
+<section class="pane" id="pane-mapping">
+  <div class="subtab-bar">
+    <div class="subtab active" data-subtab="sales"    onclick="subSw('sales')">Sales Reps</div>
+    <div class="subtab"        data-subtab="branch"   onclick="subSw('branch')">Branches</div>
+    <div class="subtab"        data-subtab="custmail" onclick="subSw('custmail')">Customer Emails</div>
+    <div class="subtab"        data-subtab="invoice"  onclick="subSw('invoice')">Invoice Team</div>
+    <div class="subtab"        data-subtab="config"   onclick="subSw('config')">Gmail Config</div>
+  </div>
+
+  <!-- Sales Reps — comma-separated supported -->
+  <div class="subsec active" id="sub-sales" data-subsec="sales">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Sales representative → email mapping</span>
+        <span id="sales-saved-label" class="text-sm" style="color:var(--green)"></span>
+      </div>
+      <div class="card-body-sm">
+        <!-- <div class="notice n-info show" style="margin-bottom:12px">
+          💾 Saved to <code>fm_mappings.json</code>. Becomes <strong>CC</strong> recipient.
+          Multiple emails allowed — comma-separate them: <code>a@co.com, b@co.com</code>
+        </div> -->
+
+        <!-- Contacts list upload — auto-fills matching rep names -->
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;padding:10px 12px;background:var(--surface-alt);border:1px solid var(--bdr);border-radius:var(--r-md)">
+          <span style="font-size:11.5px;color:var(--text-2)">📇 Have a contacts list (Name + Email)?</span>
+          <label class="btn btn-sm" style="margin:0">
+            ⬆ Upload contacts
+            <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="uploadContacts(this.files[0],'sales')">
+          </label>
+          <span id="contacts-status-sales" class="text-sm text-muted"></span>
+        </div>
+
+        <div class="tbl-outer"><div class="tbl-scroll" style="max-height:320px">
+          <table class="map-table">
+            <thead><tr><th style="width:270px">Sales rep name</th><th>Email(s) — CC, comma-separated</th></tr></thead>
+            <tbody id="sales-map-body"></tbody>
+          </table>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Branches -->
+  <div class="subsec" id="sub-branch" data-subsec="branch">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Branch → member emails</span></div>
+      <div class="card-body-sm">
+        <!-- <div class="notice n-info show" style="margin-bottom:12px">
+          💾 Branch emails added as <strong>CC</strong>. Comma-separate multiple addresses.
+        </div> -->
+
+        <!-- Contacts list upload — auto-fills matching branch names -->
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;padding:10px 12px;background:var(--surface-alt);border:1px solid var(--bdr);border-radius:var(--r-md)">
+          <span style="font-size:11.5px;color:var(--text-2)">📇 Have a contacts list (Name + Email)?</span>
+          <label class="btn btn-sm" style="margin:0">
+            ⬆ Upload contacts
+            <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="uploadContacts(this.files[0],'branch')">
+          </label>
+          <span id="contacts-status-branch" class="text-sm text-muted"></span>
+        </div>
+
+        <div class="tbl-outer"><div class="tbl-scroll" style="max-height:320px">
+          <table class="map-table">
+            <thead><tr><th style="width:160px">Branch</th><th>Member emails — CC, comma-separated</th></tr></thead>
+            <tbody id="branch-map-body"></tbody>
+          </table>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Emails — new tab -->
+  <div class="subsec" id="sub-custmail" data-subsec="custmail">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Customer emails → To: recipient</span>
+        <span id="custmail-saved-label" class="text-sm" style="color:var(--green)"></span>
+      </div>
+      <div class="card-body-sm">
+        <!-- <div class="notice n-info show" style="margin-bottom:12px">
+          💾 Customer emails become <strong>To:</strong> recipients. Auto-loaded from Excel if a <code>Customer Email</code> column exists.
+          You can edit or add multiple IDs (comma-separated) per customer. Changes reflect in Preview instantly after saving.
+        </div> -->
+        <div class="tbl-outer"><div class="tbl-scroll" style="max-height:360px">
+          <table class="map-table">
+            <thead><tr><th style="width:220px">Customer name</th><th>Email(s) — To:, comma-separated</th></tr></thead>
+            <tbody id="custmail-map-body"></tbody>
+          </table>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice Team -->
+  <div class="subsec" id="sub-invoice" data-subsec="invoice">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Invoice team — CC on every email</span></div>
+      <div class="card-body">
+        <div class="field">
+          <label class="field-label">Invoice team emails (comma-separated)</label>
+          <input id="invoice-emails" type="text" placeholder="invoice1@company.com, invoice2@company.com">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gmail / n8n Config -->
+  <div class="subsec" id="sub-config" data-subsec="config">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Email sender configuration</span></div>
+      <div class="card-body">
+
+        <!-- Mode toggle -->
+        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+          <button id="mode-smtp" class="btn btn-primary btn-sm" onclick="setSendMode('smtp')">✉ Gmail SMTP (App Password)</button>
+        </div>
+
+        <!-- SMTP fields -->
+        <div id="smtp-section">
+          <div class="notice n-info show" style="margin-bottom:14px">
+            Use this if you have a Gmail account with an App Password.
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label class="field-label">Sender Gmail address</label>
+              <input id="cfg-gmail" type="email" placeholder="dispatch@gmail.com">
+            </div>
+            <div class="field">
+              <label class="field-label">App password</label>
+              <input id="cfg-pass" type="password" placeholder="xxxx xxxx xxxx xxxx">
+              <div class="field-hint">Not your login password. <a href="https://myaccount.google.com/apppasswords" target="_blank">Create one here ↗</a></div>
+            </div>
+          </div>
+        </div>
+
+<!-- Company name — always shown -->
+        <div class="field" style="margin-top:16px">
+          <label class="field-label">Company display name</label>
+          <input id="cfg-company" type="text" value="FORBES MARSHALL Pvt. Ltd(HYD).">
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="saveMappings()">💾 Save all mappings &amp; config</button>
+    <button class="btn btn-danger btn-sm" onclick="clearMappings()">✕ Clear all</button>
+  </div>
+  <div class="notice" id="mapping-notice"></div>
+</section>
+
+<!-- ═══ PREVIEW (moved before Mapping) ═══ -->
+<section class="pane" id="pane-preview">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Email preview</span>
+      <span id="preview-month-chip" class="month-pill" style="font-size:11px;margin-left:8px"></span>
+      <span id="preview-customer-count" class="text-muted text-sm" style="margin-left:auto"></span>
+    </div>
+    <div class="card-body">
+
+      <!-- Excel-style multi-select filter bar -->
+      <div class="preview-filter">
+
+        <!-- Customer Name filter -->
+        <label>Filter</label>
+        <div class="ms-wrap">
+          <div class="ms-trigger" id="ms-trigger-customer" onclick="msToggle('customer')">
+            <span id="ms-label-customer">Customer Name</span>
+            <span class="ms-caret">▼</span>
+          </div>
+          <div class="ms-panel" id="ms-panel-customer">
+            <div class="ms-search"><input type="text" placeholder="Search customers…" oninput="msSearch(this,'customer')" onclick="event.stopPropagation()"></div>
+            <div class="ms-actions">
+              <button class="ms-act-btn" onclick="msSelectAll('customer')">Select All</button>
+              <button class="ms-act-btn" onclick="msClearAll('customer')">Clear All</button>
+            </div>
+            <div class="ms-list" id="ms-list-customer"></div>
+            <div class="ms-footer">
+              <span class="ms-count" id="ms-sel-customer">0 selected</span>
+              <button class="ms-apply" onclick="msApply('customer')">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branch filter -->
+        <div class="ms-wrap">
+          <div class="ms-trigger" id="ms-trigger-branch" onclick="msToggle('branch')">
+            <span id="ms-label-branch">Branch</span>
+            <span class="ms-caret">▼</span>
+          </div>
+          <div class="ms-panel" id="ms-panel-branch">
+            <div class="ms-search"><input type="text" placeholder="Search branches…" oninput="msSearch(this,'branch')" onclick="event.stopPropagation()"></div>
+            <div class="ms-actions">
+              <button class="ms-act-btn" onclick="msSelectAll('branch')">Select All</button>
+              <button class="ms-act-btn" onclick="msClearAll('branch')">Clear All</button>
+            </div>
+            <div class="ms-list" id="ms-list-branch"></div>
+            <div class="ms-footer">
+              <span class="ms-count" id="ms-sel-branch">0 selected</span>
+              <button class="ms-apply" onclick="msApply('branch')">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales Rep filter -->
+        <div class="ms-wrap">
+          <div class="ms-trigger" id="ms-trigger-salesrep" onclick="msToggle('salesrep')">
+            <span id="ms-label-salesrep">Sales Rep</span>
+            <span class="ms-caret">▼</span>
+          </div>
+          <div class="ms-panel" id="ms-panel-salesrep">
+            <div class="ms-search"><input type="text" placeholder="Search reps…" oninput="msSearch(this,'salesrep')" onclick="event.stopPropagation()"></div>
+            <div class="ms-actions">
+              <button class="ms-act-btn" onclick="msSelectAll('salesrep')">Select All</button>
+              <button class="ms-act-btn" onclick="msClearAll('salesrep')">Clear All</button>
+            </div>
+            <div class="ms-list" id="ms-list-salesrep"></div>
+            <div class="ms-footer">
+              <span class="ms-count" id="ms-sel-salesrep">0 selected</span>
+              <button class="ms-apply" onclick="msApply('salesrep')">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-sm" onclick="msClearAllFilters()">✕ Clear all</button>
+        <span id="pf-count" class="text-sm text-muted" style="margin-left:auto"></span>
+        <button class="btn btn-primary btn-sm" id="send-filtered-btn" onclick="sendFiltered()" style="display:none">➤ Send to filtered</button>
+      </div>
+
+      <div class="preview-layout">
+        <!-- Customer sidebar -->
+        <div>
+          <div class="cust-sidebar-label">Customers</div>
+          <div class="cust-sidebar" id="cust-sidebar">
+            <div class="empty-box"><span class="empty-box-icon">📪</span>Upload a file first</div>
+          </div>
+        </div>
+
+        <!-- Email preview panel -->
+        <div>
+          <div class="preview-panel-label">
+            <span>Email content</span>
+            <span id="preview-badge"></span>
+          </div>
+          <div id="preview-skeleton" style="display:none">
+            <div style="border:1px solid var(--bdr);border-radius:var(--r-lg);overflow:hidden">
+              <div style="background:var(--surface-alt);padding:14px 18px;border-bottom:1px solid var(--bdr)">
+                <div class="skeleton sk-line" style="width:35%"></div>
+                <div class="skeleton sk-line" style="width:60%"></div>
+                <div class="skeleton sk-line" style="width:55%"></div>
+              </div>
+              <div style="padding:20px 18px">
+                <div class="skeleton sk-line" style="width:100%"></div>
+                <div class="skeleton sk-line" style="width:70%"></div>
+                <div class="skeleton sk-line" style="width:100%;margin-top:12px"></div>
+                <div class="skeleton sk-line" style="width:45%"></div>
+              </div>
+            </div>
+          </div>
+          <div id="email-area">
+            <div class="empty-box"><span class="empty-box-icon">✉️</span>Select a customer to preview their email</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SEND ═══ -->
+<section class="pane" id="pane-send">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Send emails</span></div>
+    <div class="card-body">
+      <div class="send-options">
+        <label><input type="checkbox" id="chk-weekonly"> Has ready date only</label>
+        <label><input type="checkbox" id="chk-skip" checked> Skip already sent this session</label>
+        <span class="send-tally" id="send-tally"></span>
+      </div>
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn btn-primary" id="send-btn" onclick="doSend()">➤ Send emails now</button>
+        <button class="btn btn-sm" onclick="resetTracker()">↺ Reset tracker</button>
+        <button class="btn btn-sm" onclick="exportCSV()">⬇ Export logs</button>
+      </div>
+      <div class="progress-wrap" id="progress-wrap"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="notice" id="send-notice"></div>
+      <div class="log-terminal" id="send-log">Ready — select month, upload file, fill Mapping tab, then send.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LOGS ═══ -->
+<section class="pane" id="pane-logs">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Send logs</span></div>
+    <div class="card-body-sm">
+      <div class="btn-row" style="margin-top:0;margin-bottom:14px">
+        <button class="btn btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn btn-danger btn-xs" onclick="clearLogs()">✕ Clear logs</button>
+      </div>
+      <div class="tbl-outer"><div class="tbl-scroll">
+        <table class="auto-cols">
+          <thead><tr>
+            <th style="min-width:130px">Time</th>
+            <th style="min-width:165px">Customer</th>
+            <th style="min-width:175px">To (Customer)</th>
+            <th style="min-width:62px;text-align:center">Orders</th>
+            <th style="min-width:72px">Status</th>
+          </tr></thead>
+          <tbody id="logs-tbody">
+            <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-3)">No logs yet</td></tr>
+          </tbody>
+        </table>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+var G = {
+  allOrders: [], customers: [], filteredCustomers: [],
+  sendLogs: [], sentSet: new Set(),
+  pollTimer: null, salesMap: {}, branchMap: {}, custEmailMap: {},
+  excelCustEmails: {},
+  previewIdx: -1, emailOverride: {},
+  MONTHS: ['January','February','March','April','May','June',
+           'July','August','September','October','November','December']
+};
+
+window.addEventListener('DOMContentLoaded', function() {
+  loadMappings(); refreshMonthPill(); updateSendTally(); detectRenderEnv();
+});
+
+/* ── Month pill ───────────────────────────────────────────── */
+function getMonthYear() {
+  return { m: parseInt(document.getElementById('sel-month').value),
+           y: parseInt(document.getElementById('sel-year').value) };
+}
+function refreshMonthPill() {
+  var mv = getMonthYear();
+  var name = G.MONTHS[mv.m - 1];
+  document.getElementById('month-pill').innerHTML =
+    '<span class="month-pill">📅 ' + name + ' ' + mv.y + '</span>';
+  document.getElementById('m-month').textContent = name.substring(0,3) + '\u00a0' + mv.y;
+  // Sync active-month-display in the notice and preview chip
+  var disp = document.getElementById('active-month-display');
+  if(disp) disp.textContent = name + ' ' + mv.y;
+  var chip = document.getElementById('preview-month-chip');
+  if(chip) chip.textContent = '📅 ' + name + ' ' + mv.y;
+}
+function onMonthChange() {
+  refreshMonthPill();
+  // Auto-apply immediately if a file is already loaded
+  if (G.allOrders && G.allOrders.length > 0) {
+    applyMonth();
+  }
+}
+
+async function applyMonth() {
+  var mv = getMonthYear(); refreshMonthPill();
+  // If no file uploaded yet, just update the pill and show a hint
+  if (!G.allOrders || G.allOrders.length === 0) {
+    showNotice('month-notice','info',
+      '📅 Month set to <strong>' + G.MONTHS[mv.m-1] + ' ' + mv.y +
+      '</strong>. Now upload your Excel file below.');
+    return;
+  }
+  try {
+    var r = await fetch('/api/set_month', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({month:mv.m, year:mv.y})
+    });
+    var d = await r.json();
+    if (d.filtered !== undefined) {
+      G.allOrders = d.orders || [];
+      G.customers = buildGroups(G.allOrders);
+      G.filteredCustomers = G.customers.slice();
+      document.getElementById('m-filtered').textContent = d.filtered;
+      populateBranchFilter(G.allOrders);
+      renderOrdersTable(); buildCustSidebar(); updateSendTally();
+      showNotice('month-notice','ok',
+        'Active: <strong>' + G.MONTHS[mv.m-1] + ' ' + mv.y + '</strong> — ' +
+        d.filtered + ' orders / ' + d.customers + ' customers. Other-month rows excluded.');
+    }
+  } catch(e) {
+    showNotice('month-notice','error','Error applying filter: ' + e.message);
+    console.error(e);
+  }
+}
+
+/* ── File upload ──────────────────────────────────────────── */
+async function handleFile(file) {
+  if (!file) return;
+  showNotice('upload-notice','info','Reading <strong>' + esc(file.name) + '</strong>…');
+  var fd = new FormData(); fd.append('file', file);
+  try {
+    var r = await fetch('/api/upload', {method:'POST', body:fd});
+    var d = await r.json();
+    if (d.error) { showNotice('upload-notice','error',d.error); return; }
+    document.getElementById('upload-label').textContent = '✓ ' + file.name;
+    document.getElementById('m-total').textContent     = d.total;
+    document.getElementById('m-filtered').textContent  = d.filtered;
+    document.getElementById('status-chip').textContent = d.filtered + ' orders loaded';
+    G.allOrders = d.orders || [];
+    G.customers = buildGroups(G.allOrders);
+    G.filteredCustomers = G.customers.slice();   // reset filter on new upload
+    G.emailOverride = {};                         // reset email overrides
+    populateBranchFilter(G.allOrders);
+    renderOrdersTable(); buildCustSidebar();
+    await buildMappingTables();
+    updateSendTally();
+    showNotice('upload-notice','ok',
+      'Loaded <strong>' + d.total + ' total rows</strong>. Filtered: ' +
+      '<strong>' + d.filtered + ' orders</strong> / <strong>' + d.customers + ' customers</strong>. ' +
+      (d.total-d.filtered) + ' rows excluded.');
+  } catch(e) { showNotice('upload-notice','error','Upload error: '+e.message); }
+}
+
+(function(){
+  var zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', function(e){e.preventDefault();zone.classList.add('dragging');});
+  zone.addEventListener('dragleave',function(){zone.classList.remove('dragging');});
+  zone.addEventListener('drop',function(e){
+    e.preventDefault();zone.classList.remove('dragging');
+    var f=e.dataTransfer.files[0]; if(f) handleFile(f);
+  });
+})();
+
+/* ── Orders table ─────────────────────────────────────────── */
+function weekBadge(cw,pw) {
+  var w=((cw||pw||'').toString().trim().toUpperCase()).replace(/\s/g,'');
+  if(w==='WEEK1') return '<span class="badge b-blue">Wk 1</span>';
+  if(w==='WEEK2') return '<span class="badge b-green">Wk 2</span>';
+  if(w==='WEEK3') return '<span class="badge b-amber">Wk 3</span>';
+  if(w==='WEEK4') return '<span class="badge b-red">Wk 4</span>';
+  return '<span class="badge b-gray">'+esc((cw||pw||'—').toString().substring(0,8))+'</span>';
+}
+function statusBadge(status) {
+  if(status==='ready') return '<span class="badge b-blue">Ready ✓</span>';
+  return '<span class="badge b-green">Pending</span>';
+}
+
+function renderOrdersTable() {
+  var fwk=document.getElementById('f-week').value.toUpperCase().replace(/\s/g,'');
+  var fbr=document.getElementById('f-branch').value;
+  var fsr=document.getElementById('f-search').value.toLowerCase();
+  var list=G.allOrders.filter(function(o){
+    var cw=((o.completion_week||'').toString().toUpperCase()).replace(/\s/g,'');
+    var pw=((o.planned_week||'').toString().toUpperCase()).replace(/\s/g,'');
+    var w=cw||pw;
+    if(fwk&&w!==fwk)return false;
+    if(fbr&&(o.branch||'')!==fbr)return false;
+    if(fsr){var cn=(o.customer_name||'').toLowerCase(),on=(o.order_number||'').toLowerCase();
+      if(cn.indexOf(fsr)===-1&&on.indexOf(fsr)===-1)return false;}
+    return true;
+  });
+  document.getElementById('order-count').textContent=list.length+' rows';
+  var tb=document.getElementById('orders-tbody');
+  if(!list.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-3)">No orders match</td></tr>';return;}
+  var html='';
+  for(var i=0;i<list.length;i++){
+    var o=list[i];
+    var rawV=(o.value||'').toString().replace(/[^0-9.]/g,'');
+    var val=rawV?Math.round(parseFloat(rawV)).toLocaleString('en-IN'):'—';
+    var rd=o.ready_date?o.ready_date.split('-').reverse().join('/'):(o.ready_date_long||'—');
+    var rdC=o.ready_date?'font-weight:500;color:var(--green)':'color:var(--text-3)';
+    var sales=(o.sales_rep||'—').toString().split(',')[0].trim();
+    html+='<tr>'+
+      '<td class="td-mono td-clip" title="'+esc(o.order_number||'')+'">'+esc((o.order_number||'—').toString().substring(0,16))+'</td>'+
+      '<td class="td-clip" style="font-weight:500" title="'+esc(o.customer_name||'')+'">'+esc((o.customer_name||'—').toString().substring(0,24))+'</td>'+
+      '<td class="td-mono td-clip">'+esc((o.po_number||'—').toString().substring(0,16))+'</td>'+
+      '<td class="td-mono">'+val+'</td>'+
+      '<td>'+weekBadge(o.completion_week,o.planned_week)+'</td>'+
+      '<td class="td-mono" style="'+rdC+'">'+esc(rd)+'</td>'+
+      '<td>'+statusBadge(o.order_status)+'</td>'+
+      '<td class="td-clip" title="'+esc(o.sales_rep||'')+'">'+esc(sales.substring(0,18))+'</td>'+
+      '<td>'+esc((o.branch||'—').toString().substring(0,12))+'</td>'+
+      '</tr>';
+  }
+  tb.innerHTML=html;
+}
+
+function populateBranchFilter(orders){
+  var seen={},brs=[];
+  for(var i=0;i<orders.length;i++){var b=(orders[i].branch||'').toString();if(b&&!seen[b]){seen[b]=true;brs.push(b);}}
+  brs.sort();
+  var sel=document.getElementById('f-branch');
+  sel.innerHTML='<option value="">All branches</option>';
+  brs.forEach(function(b){sel.innerHTML+='<option value="'+esc(b)+'">'+esc(b)+'</option>';});
+}
+
+/* ── Grouping ─────────────────────────────────────────────── */
+function buildGroups(orders){
+  var g={};
+  for(var i=0;i<orders.length;i++){
+    var o=orders[i],k=o.customer_name||'';
+    if(!k)continue;
+    if(!g[k])g[k]={customer_name:k,orders:[]};
+    g[k].orders.push(o);
+  }
+  return Object.values(g);
+}
+
+/* ── Customer sidebar ─────────────────────────────────────── */
+function buildCustSidebar(){
+  G.filteredCustomers = G.customers.slice();
+  msBuildOptions();  // populate multi-select option lists from fresh data
+  renderCustSidebar();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXCEL-STYLE MULTI-SELECT FILTER
+   G.ms = {
+     customer: { options:[], selected:Set }
+     branch:   { options:[], selected:Set }
+     salesrep: { options:[], selected:Set }
+   }
+═══════════════════════════════════════════════════════════ */
+G.ms = {
+  customer: { options:[], selected: new Set() },
+  branch:   { options:[], selected: new Set() },
+  salesrep: { options:[], selected: new Set() }
+};
+G.msOpen = null;  // which panel is currently open
+
+/* Build option lists from customers array */
+function msBuildOptions(){
+  var custSet = {}, brSet = {}, repSet = {};
+  G.customers.forEach(function(c){
+    custSet[c.customer_name] = true;
+    c.orders.forEach(function(o){
+      if(o.branch)    brSet[o.branch]     = true;
+      if(o.sales_rep) repSet[o.sales_rep] = true;
+    });
+  });
+  G.ms.customer.options = Object.keys(custSet).sort();
+  G.ms.branch.options   = Object.keys(brSet).sort();
+  G.ms.salesrep.options = Object.keys(repSet).sort();
+
+  // Default: all selected
+  ['customer','branch','salesrep'].forEach(function(dim){
+    G.ms[dim].selected = new Set(G.ms[dim].options);
+  });
+  msRenderList('customer');
+  msRenderList('branch');
+  msRenderList('salesrep');
+  msUpdateLabels();
+}
+
+/* Render checkboxes into a panel's list div */
+function msRenderList(dim){
+  var list = document.getElementById('ms-list-'+dim);
+  if(!list) return;
+  var opts = G.ms[dim].options;
+  // Use document fragment for performance with large lists
+  var frag = document.createDocumentFragment();
+  opts.forEach(function(val, i){
+    var item = document.createElement('div');
+    item.className = 'ms-item';
+    item.setAttribute('data-val', val);
+    var chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.id   = 'ms-chk-'+dim+'-'+i;
+    chk.checked = G.ms[dim].selected.has(val);
+    chk.addEventListener('change', function(){
+      if(this.checked) G.ms[dim].selected.add(val);
+      else             G.ms[dim].selected.delete(val);
+      msUpdateSelCount(dim);
+    });
+    var lbl = document.createElement('label');
+    lbl.htmlFor = 'ms-chk-'+dim+'-'+i;
+    lbl.textContent = val;
+    lbl.title = val;
+    item.appendChild(chk);
+    item.appendChild(lbl);
+    frag.appendChild(item);
+  });
+  list.innerHTML = '';
+  list.appendChild(frag);
+  msUpdateSelCount(dim);
+}
+
+/* Live search inside a panel */
+function msSearch(input, dim){
+  var term = input.value.toLowerCase().trim();
+  var items = document.querySelectorAll('#ms-list-'+dim+' .ms-item');
+  items.forEach(function(item){
+    var val = (item.getAttribute('data-val')||'').toLowerCase();
+    item.classList.toggle('hidden', term !== '' && val.indexOf(term) === -1);
+  });
+}
+
+/* Select All — only visible (non-hidden) items */
+function msSelectAll(dim){
+  var items = document.querySelectorAll('#ms-list-'+dim+' .ms-item:not(.hidden)');
+  items.forEach(function(item){
+    var val = item.getAttribute('data-val');
+    var chk = item.querySelector('input[type=checkbox]');
+    G.ms[dim].selected.add(val);
+    if(chk) chk.checked = true;
+  });
+  msUpdateSelCount(dim);
+}
+
+/* Clear All — only visible items */
+function msClearAll(dim){
+  var items = document.querySelectorAll('#ms-list-'+dim+' .ms-item:not(.hidden)');
+  items.forEach(function(item){
+    var val = item.getAttribute('data-val');
+    var chk = item.querySelector('input[type=checkbox]');
+    G.ms[dim].selected.delete(val);
+    if(chk) chk.checked = false;
+  });
+  msUpdateSelCount(dim);
+}
+
+/* Update selected count badge */
+function msUpdateSelCount(dim){
+  var el = document.getElementById('ms-sel-'+dim);
+  if(!el) return;
+  var total = G.ms[dim].options.length;
+  var sel   = G.ms[dim].selected.size;
+  el.textContent = sel === total ? 'All ('+total+')' : sel+' / '+total+' selected';
+}
+
+/* Update trigger button label */
+function msUpdateLabels(){
+  ['customer','branch','salesrep'].forEach(function(dim){
+    var lbl = document.getElementById('ms-label-'+dim);
+    var trig = document.getElementById('ms-trigger-'+dim);
+    if(!lbl) return;
+    var total = G.ms[dim].options.length;
+    var sel   = G.ms[dim].selected.size;
+    var dimName = dim==='customer'?'Customer Name':dim==='branch'?'Branch':'Sales Rep';
+    if(sel===0){
+      lbl.textContent = dimName+': (none)';
+      if(trig) trig.style.borderColor='var(--red)';
+    } else if(sel===total){
+      lbl.textContent = dimName;
+      if(trig) trig.style.borderColor='';
+    } else {
+      lbl.textContent = dimName+': '+sel+' selected';
+      if(trig) trig.style.borderColor='var(--blue)';
+    }
+  });
+}
+
+/* Toggle open/close a panel */
+function msToggle(dim){
+  var panel = document.getElementById('ms-panel-'+dim);
+  var trig  = document.getElementById('ms-trigger-'+dim);
+  if(!panel) return;
+  var isOpen = panel.classList.contains('open');
+  // close all panels first
+  document.querySelectorAll('.ms-panel.open').forEach(function(p){ p.classList.remove('open'); });
+  document.querySelectorAll('.ms-trigger.active').forEach(function(t){ t.classList.remove('active'); });
+  if(!isOpen){
+    panel.classList.add('open');
+    if(trig) trig.classList.add('active');
+    G.msOpen = dim;
+    // position panel below trigger
+    var rect = trig.getBoundingClientRect();
+    panel.style.top  = (trig.offsetHeight+2)+'px';
+    panel.style.left = '0';
+    // focus search
+    var si = panel.querySelector('.ms-search input');
+    if(si){ si.value=''; msSearch(si,dim); setTimeout(function(){si.focus();},50); }
+  } else {
+    G.msOpen = null;
+  }
+}
+
+/* Close panels on outside click */
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.ms-wrap')){
+    document.querySelectorAll('.ms-panel.open').forEach(function(p){ p.classList.remove('open'); });
+    document.querySelectorAll('.ms-trigger.active').forEach(function(t){ t.classList.remove('active'); });
+    G.msOpen = null;
+  }
+});
+
+/* Apply a single dimension filter and refresh sidebar */
+function msApply(dim){
+  // Close panel
+  var panel = document.getElementById('ms-panel-'+dim);
+  var trig  = document.getElementById('ms-trigger-'+dim);
+  if(panel) panel.classList.remove('open');
+  if(trig)  trig.classList.remove('active');
+  G.msOpen = null;
+  msUpdateLabels();
+  applyPreviewFilter();
+}
+
+/* Apply ALL active filters to produce filteredCustomers */
+function applyPreviewFilter(){
+  if(!G.customers || !G.customers.length){
+    G.filteredCustomers=[];
+    renderCustSidebar();
+    return;
+  }
+  var custSel  = G.ms.customer.selected;
+  var brSel    = G.ms.branch.selected;
+  var repSel   = G.ms.salesrep.selected;
+  var custAll  = custSel.size  === G.ms.customer.options.length;
+  var brAll    = brSel.size    === G.ms.branch.options.length;
+  var repAll   = repSel.size   === G.ms.salesrep.options.length;
+
+  G.filteredCustomers = G.customers.filter(function(c){
+    // Customer name filter
+    if(!custAll && !custSel.has(c.customer_name)) return false;
+    // Branch + Sales Rep — customer passes if ANY of its orders match both filters
+    if(!brAll || !repAll){
+      var orderMatch = c.orders.some(function(o){
+        var brOk  = brAll  || brSel.has(o.branch||'');
+        var repOk = repAll || repSel.has(o.sales_rep||'');
+        return brOk && repOk;
+      });
+      if(!orderMatch) return false;
+    }
+    return true;
+  });
+  renderCustSidebar();
+}
+
+/* Clear ALL filters back to "all selected" */
+function msClearAllFilters(){
+  ['customer','branch','salesrep'].forEach(function(dim){
+    G.ms[dim].selected = new Set(G.ms[dim].options);
+    msRenderList(dim);
+  });
+  msUpdateLabels();
+  G.filteredCustomers = G.customers.slice();
+  renderCustSidebar();
+}
+
+/* Legacy stub — kept so any existing calls don't crash */
+function clearPreviewFilter(){ msClearAllFilters(); }
+
+function renderCustSidebar(){
+  var count = G.filteredCustomers.length;
+  document.getElementById('preview-customer-count').textContent=
+    count+' customer'+(count!==1?'s':'');
+  // update filter count + send-filtered button
+  var pfCount = document.getElementById('pf-count');
+  var sfBtn   = document.getElementById('send-filtered-btn');
+  var total   = G.customers.length;
+  var isFiltered = count < total;
+  if(pfCount) pfCount.textContent = isFiltered ? count+' match'+(count!==1?'es':'') : '';
+  if(sfBtn)   sfBtn.style.display = (isFiltered && count>0) ? '' : 'none';
+
+  var html='';
+  for(var i=0;i<G.filteredCustomers.length;i++){
+    var c=G.filteredCustomers[i];
+    var hasDate=c.orders.some(function(o){return !!o.ready_date||o.order_status==='ready';});
+    var dotClr=hasDate?'var(--green)':'#b47010';
+    html+='<div class="cust-item" id="ci-'+i+'" onclick="showPreview('+i+')">' +
+      '<div class="ci-name"><span class="sdot" style="background:'+dotClr+'"></span>'+esc(c.customer_name)+'</div>'+
+      '<div class="ci-meta">'+c.orders.length+' order'+(c.orders.length!==1?'s':'')+
+      ' · <span style="color:'+dotClr+'">'+(hasDate?'date set':'no week')+'</span></div>'+
+      '</div>';
+  }
+  document.getElementById('cust-sidebar').innerHTML=html||
+    '<div class="empty-box"><span class="empty-box-icon">🔍</span>No customers match the filter</div>';
+}
+
+/* Send only the currently filtered customers */
+async function sendFiltered(){
+  var names = G.filteredCustomers.map(function(c){return c.customer_name;});
+  if(!names.length){alert('No filtered customers to send to.');return;}
+  var preview = names.slice(0,5).join('\n') + (names.length>5 ? '\n…and '+(names.length-5)+' more' : '');
+  if(!confirm('Send emails to '+names.length+' filtered customer(s)?\n\n'+preview))return;
+  var btn=document.getElementById('send-filtered-btn');
+  btn.disabled=true;btn.innerHTML='⏳ Sending…';
+  try{
+    var r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        week_only:false,skip_sent:false,
+        sent_keys:[],
+        filter_names:names,
+        email_overrides:G.emailOverride
+      })});
+    var d=await r.json();
+    if(d.error){alert('Error: '+d.error);btn.disabled=false;btn.innerHTML='➤ Send to filtered';return;}
+    sw('send');  // switch to send tab to see live log
+    pollLog(d.total);
+  }catch(e){alert('Error: '+e.message);}
+  btn.disabled=false;btn.innerHTML='➤ Send to filtered';
+}
+
+/* ── Email preview ────────────────────────────────────────── */
+async function showPreview(idx){
+  for(var i=0;i<G.filteredCustomers.length;i++){
+    var el=document.getElementById('ci-'+i);
+    if(el)el.className='cust-item'+(i===idx?' selected':'');
+  }
+  G.previewIdx = idx;
+  var c=G.filteredCustomers[idx]; if(!c)return;
+  document.getElementById('preview-skeleton').style.display='block';
+  document.getElementById('email-area').style.display='none';
+  document.getElementById('preview-badge').innerHTML='';
+  try{
+    var r=await fetch('/api/preview/'+encodeURIComponent(c.customer_name));
+    var d=await r.json();
+    document.getElementById('preview-skeleton').style.display='none';
+    document.getElementById('email-area').style.display='block';
+    if(d.error){
+      document.getElementById('email-area').innerHTML='<div class="empty-box"><span class="empty-box-icon">⚠</span>'+esc(d.error)+'</div>';
+      return;
+    }
+    var hasDate=c.orders.some(function(o){return !!o.ready_date||o.order_status==='ready';});
+    document.getElementById('preview-badge').innerHTML=hasDate
+      ?'<span class="badge b-green"><span class="badge-dot"></span>Ready</span>'
+      :'<span class="badge b-amber"><span class="badge-dot"></span>Pending</span>';
+
+    var enc=d.html.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+
+    /* ── To: field — editable with pencil icon ───────────────────────── */
+    // Use override if user has edited it this session, else use mapping/excel value
+    var currentTo = G.emailOverride[c.customer_name] || d.to || '';
+    var hasEmail  = currentTo && currentTo.indexOf('no customer')===-1;
+
+    var toDisplay = hasEmail
+      ? '<span class="edit-email-code">'+esc(currentTo)+'</span>'
+      : '<span class="ef-warn">⚠ No email — add below or in Mapping</span>';
+
+    var toRow =
+      '<div class="edit-email-wrap" id="to-display-wrap">'+
+        toDisplay+
+        '<button class="edit-btn" onclick="editToEmail(&quot;'+esc(c.customer_name)+'&quot;,&quot;'+esc(currentTo)+'&quot;)" title="Edit email address">'+
+          '✏ Edit'+
+        '</button>'+
+      '</div>'+
+      '<span style="font-size:10.5px;color:var(--text-3);margin-left:4px">(Customer Email)</span>';
+
+    var ccVal=(d.cc&&d.cc.indexOf('no CC')===-1)
+      ?'<code>'+esc(d.cc)+'</code>'
+      :'<span style="color:var(--text-4)">No CC emails mapped yet</span>';
+
+    document.getElementById('email-area').innerHTML=
+      '<div class="email-shell">'+
+      '<div class="email-fields">'+
+
+        '<div class="ef-row"><div class="ef-label">From</div>'+
+        '<div class="ef-value"><code>'+esc(d.from||'dispatch@company.com')+'</code>'+
+        '<span style="font-size:10.5px;color:var(--text-3);margin-left:8px">(Invoice Members)</span></div></div>'+
+
+        /* To row — editable */
+        '<div class="ef-row" id="to-ef-row"><div class="ef-label">To</div>'+
+        '<div class="ef-value" id="to-ef-value">'+toRow+'</div></div>'+
+
+        '<div class="ef-row"><div class="ef-label">CC</div>'+
+        '<div class="ef-value">'+ccVal+
+        '<span style="font-size:10.5px;color:var(--text-3);margin-left:8px">(Sales Rep + Branch + Invoice)</span></div></div>'+
+
+      '</div>'+
+      '<div class="email-subject"><span class="email-subject-label">Subject</span>'+esc(d.subject)+'</div>'+
+      '<div class="email-body-wrap">'+
+      '<iframe id="preview-frame" srcdoc="'+enc+'" scrolling="no" onload="resizeFrame(this)"'+
+      ' style="display:block;width:max-content;min-width:100%;min-height:480px;border:none;"></iframe>'+
+      '</div></div>';
+
+  }catch(e){
+    document.getElementById('preview-skeleton').style.display='none';
+    document.getElementById('email-area').style.display='block';
+    document.getElementById('email-area').innerHTML='<div class="empty-box"><span class="empty-box-icon">⚠</span>Preview failed: '+esc(e.message)+'</div>';
+  }
+}
+
+/* ── Edit To: email inline ────────────────────────────────── */
+function editToEmail(customerName, currentEmail){
+  var wrap = document.getElementById('to-ef-value');
+  if(!wrap) return;
+  wrap.innerHTML =
+    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%">'+
+    '<input class="edit-email-input" id="to-email-input" type="text" value="'+esc(currentEmail)+'" placeholder="email@company.com" style="flex:1;min-width:200px">'+
+    '<button class="save-email-btn" onclick="saveToEmail(&quot;'+esc(customerName)+'&quot;)">✓ Save</button>'+
+    '<button class="cancel-email-btn" onclick="cancelToEmail(&quot;'+esc(customerName)+'&quot;,&quot;'+esc(currentEmail)+'&quot;)">✕</button>'+
+    '</div>'+
+    '<div style="font-size:10.5px;color:var(--text-3);margin-top:4px">Edit the To: email. This overrides the Excel value for this session only. To save permanently, update in Mapping → Customer Emails.</div>';
+  setTimeout(function(){ var inp=document.getElementById('to-email-input'); if(inp)inp.focus(); },50);
+}
+
+function saveToEmail(customerName){
+  var inp = document.getElementById('to-email-input');
+  if(!inp) return;
+  var newEmail = inp.value.trim();
+  G.emailOverride[customerName] = newEmail;
+  // Refresh the preview row to show updated email
+  var idx = G.filteredCustomers.findIndex(function(c){return c.customer_name===customerName;});
+  if(idx>=0) showPreview(idx);
+}
+
+function cancelToEmail(customerName, original){
+  var idx = G.filteredCustomers.findIndex(function(c){return c.customer_name===customerName;});
+  if(idx>=0) showPreview(idx);
+}
+
+function resizeFrame(frame){
+  function measure(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var body=doc.body,html=doc.documentElement;
+      var w=Math.max(body?body.scrollWidth:0,html?html.scrollWidth:0,680);
+      var h=Math.max(body?body.scrollHeight:0,html?html.scrollHeight:0,480);
+      frame.style.width=w+'px'; frame.style.height=h+'px';
+    }catch(e){}
+  }
+  setTimeout(measure,100); setTimeout(measure,400);
+}
+
+/* Refresh preview for currently selected customer */
+function refreshActivePreview(){
+  var sel=document.querySelector('.cust-item.selected');
+  if(sel){
+    var idx=parseInt(sel.id.replace('ci-',''));
+    if(!isNaN(idx)) showPreview(idx);
+  }
+}
+
+/* ── Mappings load & save ─────────────────────────────────── */
+async function loadMappings(){
+  try{
+    var r=await fetch('/api/mappings');
+    var d=await r.json();
+    G.salesMap    =d.sales||{};
+    G.branchMap   =d.branch||{};
+    G.custEmailMap=d.customer_emails||{};
+    document.getElementById('invoice-emails').value=d.invoice||'';
+    var cfg=d.config||{};
+    if(cfg.gmail)       document.getElementById('cfg-gmail').value       =cfg.gmail;
+    if(cfg.password)    document.getElementById('cfg-pass').value        =cfg.password;
+    if(cfg.company)     document.getElementById('cfg-company').value     =cfg.company;
+    setSendMode('smtp');
+    populateSavedSalesRows();
+    populateSavedBranchRows();
+    populateSavedCustEmailRows();
+  }catch(e){console.error('loadMappings:',e);}
+}
+
+function populateSavedSalesRows(){
+  var reps=Object.keys(G.salesMap); if(!reps.length)return;
+  var html='',savedN=0;
+  reps.forEach(function(rep){
+    var saved=G.salesMap[rep]||''; if(saved)savedN++;
+    html+='<tr><td style="font-size:12.5px;font-weight:500">'+esc(rep)+(saved?'<span class="saved-mark"></span>':'')+'</td>'+
+      '<td><input class="map-input" type="text" data-rep="'+encodeURIComponent(rep)+'" placeholder="email@co.com, email2@co.com" value="'+esc(saved)+'" oninput="onRepInput(this)"></td></tr>';
+  });
+  document.getElementById('sales-map-body').innerHTML=html;
+  document.getElementById('sales-saved-label').textContent=savedN?savedN+'/'+reps.length+' saved':'';
+}
+
+function populateSavedBranchRows(){
+  var brs=Object.keys(G.branchMap); if(!brs.length)return;
+  var html='';
+  brs.forEach(function(br){
+    var saved=G.branchMap[br]||'';
+    html+='<tr><td style="font-size:12.5px;font-weight:500">'+esc(br)+(saved?'<span class="saved-mark"></span>':'')+'</td>'+
+      '<td><input class="map-input" type="text" data-branch="'+encodeURIComponent(br)+'" placeholder="m1@co.com, m2@co.com" value="'+esc(saved)+'" oninput="onBranchInput(this)"></td></tr>';
+  });
+  document.getElementById('branch-map-body').innerHTML=html;
+}
+
+function populateSavedCustEmailRows(){
+  // Merge saved mapping + Excel data for full list
+  var allCusts={};
+  Object.keys(G.custEmailMap).forEach(function(k){allCusts[k]=G.custEmailMap[k];});
+  Object.keys(G.excelCustEmails).forEach(function(k){if(!allCusts[k])allCusts[k]=G.excelCustEmails[k];});
+  var custs=Object.keys(allCusts).sort();
+  if(!custs.length){
+    document.getElementById('custmail-map-body').innerHTML=
+      '<tr><td colspan="2" style="text-align:center;padding:16px;color:var(--text-3)">Upload a file or add manually below</td></tr>';
+    return;
+  }
+  var html='',savedN=0;
+  custs.forEach(function(cn){
+    var saved=allCusts[cn]||''; if(saved)savedN++;
+    html+='<tr><td style="font-size:12px;font-weight:500">'+esc(cn)+(saved?'<span class="saved-mark"></span>':'')+'</td>'+
+      '<td><input class="map-input" type="text" data-cust="'+encodeURIComponent(cn)+'" placeholder="customer@co.com, another@co.com" value="'+esc(saved)+'" oninput="onCustEmailInput(this)"></td></tr>';
+  });
+  document.getElementById('custmail-map-body').innerHTML=html;
+  document.getElementById('custmail-saved-label').textContent=savedN?savedN+'/'+custs.length+' saved':'';
+}
+
+/* ── Contacts list upload — auto-fills Sales Rep / Branch emails ─────────── */
+async function uploadContacts(file, context){
+  if(!file) return;
+  var statusEl = document.getElementById('contacts-status-'+context);
+  if(statusEl) statusEl.textContent = 'Reading ' + file.name + '…';
+
+  var fd = new FormData();
+  fd.append('file', file);
+  try{
+    var r = await fetch('/api/upload_contacts', {method:'POST', body:fd});
+    var d = await r.json();
+    if(d.error){
+      if(statusEl){ statusEl.textContent = '⚠ ' + d.error; statusEl.style.color = 'var(--red)'; }
+      return;
+    }
+    // Merge results into local state
+    G.salesMap  = d.sales  || G.salesMap;
+    G.branchMap = d.branch || G.branchMap;
+
+    if(statusEl){
+      statusEl.style.color = 'var(--green)';
+      statusEl.textContent = '✓ ' + d.total_contacts + ' contacts loaded — ' +
+        d.sales_updated + ' sales rep(s), ' + d.branch_updated + ' branch(es) auto-filled';
+    }
+
+    // Refresh both tables to show the auto-filled emails
+    populateSavedSalesRows();
+    populateSavedBranchRows();
+    if(G.allOrders && G.allOrders.length) buildMappingTables();
+
+    // Refresh preview if a customer is currently selected — CC list may have changed
+    refreshActivePreview();
+  }catch(e){
+    if(statusEl){ statusEl.textContent = '⚠ Upload error: ' + e.message; statusEl.style.color = 'var(--red)'; }
+  }
+}
+
+async function buildMappingTables(){
+  try{
+    var r=await fetch('/api/meta');
+    var d=await r.json();
+    var reps=d.reps||[],brs=d.branches||[];
+    G.excelCustEmails=d.customer_emails||{};
+
+    // Sales reps
+    var html='',savedN=0;
+    reps.forEach(function(rep){
+      var saved=G.salesMap[rep]||''; if(saved)savedN++;
+      html+='<tr><td style="font-size:12.5px;font-weight:500">'+esc(rep)+(saved?'<span class="saved-mark"></span>':'')+'</td>'+
+        '<td><input class="map-input" type="text" data-rep="'+encodeURIComponent(rep)+'" placeholder="email@co.com, email2@co.com" value="'+esc(saved)+'" oninput="onRepInput(this)"></td></tr>';
+    });
+    document.getElementById('sales-map-body').innerHTML=html||
+      '<tr><td colspan="2" style="text-align:center;padding:16px;color:var(--text-3)">Upload a file first</td></tr>';
+    document.getElementById('sales-saved-label').textContent=savedN?savedN+'/'+reps.length+' saved':'';
+
+    // Branches
+    var bhtml='';
+    brs.forEach(function(br){
+      var bsaved=G.branchMap[br]||'';
+      bhtml+='<tr><td style="font-size:12.5px;font-weight:500">'+esc(br)+(bsaved?'<span class="saved-mark"></span>':'')+'</td>'+
+        '<td><input class="map-input" type="text" data-branch="'+encodeURIComponent(br)+'" placeholder="m1@co.com, m2@co.com" value="'+esc(bsaved)+'" oninput="onBranchInput(this)"></td></tr>';
+    });
+    document.getElementById('branch-map-body').innerHTML=bhtml||
+      '<tr><td colspan="2" style="text-align:center;padding:16px;color:var(--text-3)">Upload a file first</td></tr>';
+
+    // Customer emails
+    populateSavedCustEmailRows();
+  }catch(e){console.error('buildMappingTables:',e);}
+}
+
+var _saveTimer=null;
+function onRepInput(el){G.salesMap[decodeURIComponent(el.getAttribute('data-rep'))]=el.value.trim();triggerAutoSave();}
+function onBranchInput(el){G.branchMap[decodeURIComponent(el.getAttribute('data-branch'))]=el.value.trim();triggerAutoSave();}
+function onCustEmailInput(el){G.custEmailMap[decodeURIComponent(el.getAttribute('data-cust'))]=el.value.trim();triggerAutoSave();}
+function triggerAutoSave(){clearTimeout(_saveTimer);_saveTimer=setTimeout(autoSave,900);}
+async function autoSave(){await postMappings(false);}
+
+async function saveMappings(){
+  document.querySelectorAll('#sales-map-body input').forEach(function(el){
+    var k=decodeURIComponent(el.getAttribute('data-rep')||''); if(k)G.salesMap[k]=el.value.trim();
+  });
+  document.querySelectorAll('#branch-map-body input').forEach(function(el){
+    var k=decodeURIComponent(el.getAttribute('data-branch')||''); if(k)G.branchMap[k]=el.value.trim();
+  });
+  document.querySelectorAll('#custmail-map-body input').forEach(function(el){
+    var k=decodeURIComponent(el.getAttribute('data-cust')||''); if(k)G.custEmailMap[k]=el.value.trim();
+  });
+  await postMappings(true);
+  // Immediately refresh preview so changes reflect instantly
+  refreshActivePreview();
+}
+
+async function postMappings(showMsg){
+  var cfg={
+    gmail:     document.getElementById('cfg-gmail').value.trim(),
+    password:  document.getElementById('cfg-pass').value.trim(),
+    company:   document.getElementById('cfg-company').value.trim()||'FORBES MARSHALL Pvt.Ltd(HYD).',
+    send_mode: 'smtp',
+  };
+  var invoice=document.getElementById('invoice-emails').value.trim();
+  try{
+    var resp = await fetch('/api/mappings',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sales:G.salesMap,branch:G.branchMap,
+                           invoice,config:cfg,customer_emails:G.custEmailMap})
+    });
+    var result = await resp.json().catch(function(){return {};});
+    if(!resp.ok){
+      if(showMsg) showNotice('mapping-notice','error','Save failed — server error '+resp.status);
+      return;
+    }
+    if(showMsg){
+      showNotice('mapping-notice','ok','💾 Mappings saved successfully. Email Preview updated.');
+      buildMappingTables();
+    }
+  }catch(e){if(showMsg)showNotice('mapping-notice','error','Save failed: '+e.message);}
+}
+
+async function clearMappings(){
+  if(!confirm('Clear all saved email mappings?'))return;
+  G.salesMap={};G.branchMap={};G.custEmailMap={};
+  document.getElementById('invoice-emails').value='';
+  await fetch('/api/mappings',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({sales:{},branch:{},invoice:'',config:{},customer_emails:{}})});
+  buildMappingTables();
+  showNotice('mapping-notice','warn','All mappings cleared.');
+}
+
+/* ── Send count ───────────────────────────────────────────── */
+function updateSendTally(){
+  var wo=document.getElementById('chk-weekonly').checked;
+  var skip=document.getElementById('chk-skip').checked;
+  var list=G.customers.slice();
+  if(wo)list=list.filter(function(c){return c.orders.some(function(o){return !!o.ready_date||o.order_status==='ready';});});
+  if(skip)list=list.filter(function(c){return !G.sentSet.has(c.customer_name);});
+  document.getElementById('send-tally').textContent=list.length+' email(s) will be sent';
+}
+document.getElementById('chk-weekonly').addEventListener('change',updateSendTally);
+document.getElementById('chk-skip').addEventListener('change',updateSendTally);
+
+/* ── Send ─────────────────────────────────────────────────── */
+async function doSend(){
+  var btn=document.getElementById('send-btn');
+  btn.disabled=true;btn.innerHTML='⏳ Sending…';
+  document.getElementById('send-log').innerHTML='';
+  document.getElementById('progress-wrap').style.display='block';
+  document.getElementById('send-notice').className='notice';
+  var wo=document.getElementById('chk-weekonly').checked;
+  var skip=document.getElementById('chk-skip').checked;
+  try{
+    var r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({week_only:wo,skip_sent:skip,sent_keys:[...G.sentSet]})});
+    var d=await r.json();
+    if(d.error){showNotice('send-notice','error',d.error);btn.disabled=false;btn.innerHTML='➤ Send emails now';return;}
+    pollLog(d.total);
+  }catch(e){showNotice('send-notice','error','Error: '+e.message);btn.disabled=false;btn.innerHTML='➤ Send emails now';}
+}
+
+function pollLog(total){
+  if(G.pollTimer)clearInterval(G.pollTimer);
+  var logEl=document.getElementById('send-log');
+  var pfill=document.getElementById('progress-fill');
+  var last=0;
+  G.pollTimer=setInterval(async function(){
+    try{
+      var r=await fetch('/api/send_log');
+      var d=await r.json();
+      var entries=d.log||[];
+      for(var i=last;i<entries.length;i++){
+        var e=entries[i];
+        var cls=e.status==='ok'?'t-ok':e.status==='err'?'t-err':e.status==='skip'?'t-warn':'t-info';
+        logEl.innerHTML+='<span class="'+cls+'">'+e.msg+'</span>\n';
+        last=i+1;
+      }
+      logEl.scrollTop=logEl.scrollHeight;
+      if(total>0&&last>0)pfill.style.width=Math.min(100,Math.round(last/total*100))+'%';
+      if(!d.sending){
+        clearInterval(G.pollTimer);
+        var btn=document.getElementById('send-btn');
+        btn.disabled=false;btn.innerHTML='➤ Send emails now';
+        pfill.style.width='100%';
+        var res=d.result||{};
+        if(res.auth_error){showNotice('send-notice','error',res.message);return;}
+        document.getElementById('m-sent').textContent=(parseInt(document.getElementById('m-sent').textContent)||0)+(res.sent||0);
+        document.getElementById('m-fail').textContent=(parseInt(document.getElementById('m-fail').textContent)||0)+(res.failed||0);
+        (res.results||[]).forEach(function(x){G.sentSet.add(x.customer);G.sendLogs.push({time:x.time,customer:x.customer,toEmail:x.to,orders:x.orders,status:'Sent'});});
+        (res.errors||[]).forEach(function(x){G.sendLogs.push({time:new Date().toLocaleString(),customer:x.name,toEmail:'—',orders:0,status:'Failed'});});
+        renderLogs();updateSendTally();
+        res.failed===0
+          ?showNotice('send-notice','ok','All '+(res.sent||0)+' emails sent successfully.')
+          :showNotice('send-notice','error',(res.sent||0)+' sent · '+(res.failed||0)+' failed.');
+      }
+    }catch(ignore){}
+  },700);
+}
+
+function resetTracker(){
+  if(!confirm('Reset sent tracker?'))return;
+  G.sentSet.clear();updateSendTally();
+  var logEl=document.getElementById('send-log');
+  logEl.innerHTML+='<span class="t-warn">Sent tracker reset.\n</span>';
+  logEl.scrollTop=logEl.scrollHeight;
+}
+
+/* ── Logs ─────────────────────────────────────────────────── */
+function renderLogs(){
+  var tb=document.getElementById('logs-tbody');
+  if(!G.sendLogs.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-3)">No logs yet</td></tr>';return;}
+  var html='';
+  G.sendLogs.slice().reverse().forEach(function(l){
+    var cls=l.status==='Sent'?'log-sent':'log-fail';
+    var bdg=l.status==='Sent'?'<span class="badge b-green">Sent</span>':'<span class="badge b-red">Failed</span>';
+    html+='<tr class="'+cls+'"><td style="font-size:11.5px;color:var(--text-3)">'+esc(l.time)+'</td>'+
+      '<td style="font-weight:500">'+esc(l.customer)+'</td>'+
+      '<td class="td-mono" style="color:var(--text-3)">'+esc(l.toEmail)+'</td>'+
+      '<td style="text-align:center">'+l.orders+'</td><td>'+bdg+'</td></tr>';
+  });
+  tb.innerHTML=html;
+}
+
+function exportCSV(){
+  if(!G.sendLogs.length){alert('No logs to export yet.');return;}
+  var csv='Time,Customer,To,Orders,Status\n';
+  G.sendLogs.forEach(function(l){
+    csv+=[l.time,l.customer,l.toEmail,l.orders,l.status].map(function(v){return '"'+(v||'').toString().replace(/"/g,'""')+'"';}).join(',')+'\n';
+  });
+  var a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='FM_Logs_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+function clearLogs(){
+  if(!confirm('Clear all logs?'))return;
+  G.sendLogs=[];renderLogs();
+  document.getElementById('m-sent').textContent='0';
+  document.getElementById('m-fail').textContent='0';
+}
+
+/* ── Helpers ──────────────────────────────────────────────── */
+function showNotice(id,type,html){
+  var el=document.getElementById(id);
+  var cls={ok:'n-ok',error:'n-error',info:'n-info',warn:'n-warn'}[type]||'n-info';
+  el.className='notice '+cls+' show';el.innerHTML=html;
+}
+function esc(s){
+  return (s||'').toString()
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+/* ── Render helper — copy current mappings JSON for FM_MAPPINGS env var ── */
+async function copyMappingsForRender(){
+  try{
+    var r = await fetch('/api/export_mappings');
+    var txt = await r.text();
+    await navigator.clipboard.writeText(txt);
+    alert('Copied! Now go to Render dashboard → your service → Environment → FM_MAPPINGS → paste this value → Save.');
+  }catch(e){
+    // fallback: open in new tab so user can manually copy
+    window.open('/api/export_mappings','_blank');
+    alert('Opened in new tab — copy the full JSON text, then paste it into FM_MAPPINGS on Render.');
+  }
+}
+
+/* ── Detect Render on load — show banner if file writes fail ── */
+async function detectRenderEnv(){
+  try{
+    var r = await fetch('/api/health');
+    var d = await r.json();
+    if(d.storage_mode === 'env_var' || !d.file_exists){
+      document.getElementById('render-banner').classList.add('show');
+    }
+  }catch(e){}
+}
+
+function setSendMode(mode){
+  // SMTP only — n8n/Zapier removed. Kept so loadMappings() doesn't crash.
+  var smtpSec = document.getElementById('smtp-section');
+  if(smtpSec) smtpSec.style.display = 'block';
+}
+
+function sw(name){
+  var names=['upload','orders','mapping','preview','send','logs'];
+  document.querySelectorAll('.tab-btn').forEach(function(b,i){b.className='tab-btn'+(names[i]===name?' active':'');});
+  document.querySelectorAll('.pane').forEach(function(p,i){p.className='pane'+(names[i]===name?' active':'');});
+}
+function subSw(name){
+  document.querySelectorAll('[data-subtab]').forEach(function(t){t.className='subtab'+(t.getAttribute('data-subtab')===name?' active':'');});
+  document.querySelectorAll('[data-subsec]').forEach(function(s){s.className='subsec'+(s.getAttribute('data-subsec')===name?' active':'');});
+}
+</script>
+</body>
+</html>
